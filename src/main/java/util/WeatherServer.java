@@ -55,8 +55,8 @@ public class WeatherServer {
             System.out.println(format("Weather Server started.\n url=%s\n", BASE_URL));
             server.start();
 
-            Thread.currentThread().join();
-        } catch (IOException | InterruptedException ex) {
+//            Thread.currentThread().join();
+        } catch (IOException ex) {
             Logger.getLogger(WeatherServer.class.getName()).log(Level.SEVERE, null, ex);
         }
 

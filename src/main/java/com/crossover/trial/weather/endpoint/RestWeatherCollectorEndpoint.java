@@ -91,7 +91,7 @@ public class RestWeatherCollectorEndpoint implements WeatherCollector {
 	
 	
 	@POST
-	@Path("/airport/{iata}")
+	@Path("/airport")
 	@Override
 	public Response addAirport(@FormParam("iata") String iata,
 			@FormParam("city") String city,
@@ -102,6 +102,7 @@ public class RestWeatherCollectorEndpoint implements WeatherCollector {
 			@FormParam("altitude") Double altitude,
 			@FormParam("timezone") Double timezone,
 			@FormParam("dst") String dst) {
+			LOGGER.info("ADDED AIRPORT " + iata);
 			try{
 				WeatherCollectorService service = new WeatherCollectorService();
 				service.addAirport(iata, city, country, icao, latitude, longitude, altitude, timezone, dst);				

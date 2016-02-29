@@ -32,10 +32,13 @@ public class AirportLoader {
     /** end point to supply updates */
     private WebTarget collect;
 
+	private WebTarget google;
+
     public AirportLoader() {
         Client client = ClientBuilder.newClient();
         query = client.target(HOST + "/query");
         collect = client.target(HOST + "/collect");
+        google = client.target("https://api.nasa.gov");
     }
 
     public void upload(InputStream airportDataStream) throws IOException{
@@ -45,10 +48,10 @@ public class AirportLoader {
         
         while ((l = reader.readLine()) != null) {
         	String[] airportData = l.split(",");
-        	AirportData ad = new AirportData(airportData[2], 
-        			Double.parseDouble(airportData[4]), Double.parseDouble(airportData[5]),
-        			airportData[0], airportData[1], airportData[3], Double.parseDouble(airportData[6]), 
-        			Double.parseDouble(airportData[7]), DST.valueOf(airportData[8]));
+        	AirportData ad = new AirportData(airportData[4].replace("\"", ""), 
+        			Double.parseDouble(airportData[6]), Double.parseDouble(airportData[7]),
+        			airportData[1].replace("\"", ""), airportData[2].replace("\"", ""), airportData[5].replace("\"", ""), Double.parseDouble(airportData[8]), 
+        			Double.parseDouble(airportData[9]), DST.valueOf(airportData[10].replace("\"", "")));
         	Form form = new Form();
         	form.param("iata", ad.getIata());
         	form.param("city", ad.getCity());
@@ -60,14 +63,14 @@ public class AirportLoader {
         	form.param("timezone", ad.getTimezone().toString());
         	form.param("dst", ad.getDst().toString());
         	
-        	path.request(MediaType.APPLICATION_JSON_TYPE)
-        			.post(Entity.entity(form,MediaType.APPLICATION_FORM_URLENCODED_TYPE));
-            break;
+        	System.out.println(path.request()
+        		.post(Entity.entity(form,MediaType.APPLICATION_FORM_URLENCODED)).getStatus());
         }
     }
 
     public static void main(String args[]) throws IOException{
-        File airportDataFile = new File(args[0]);
+        File airportDataFile = new File("/home/sensefields/development/watchdogsWorkspace/"
+    			+ "weather-dist/src/main/resources/airports.txt");
         if (!airportDataFile.exists() || airportDataFile.length() == 0) {
             System.err.println(airportDataFile + " is not a valid input");
             System.exit(1);

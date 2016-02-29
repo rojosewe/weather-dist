@@ -4,12 +4,16 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
+import model.AirportData;
 import model.AtmosphericInformation;
 import model.DataPoint;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import util.WeatherServer;
+
+import com.crossover.trial.weather.client.AirportLoader;
 import com.crossover.trial.weather.endpoint.RestWeatherCollectorEndpoint;
 import com.crossover.trial.weather.endpoint.RestWeatherQueryEndpoint;
 import com.crossover.trial.weather.endpoint.WeatherCollector;
@@ -29,12 +33,15 @@ public class WeatherEndpointTest {
     private DataPoint _dp;
     @Before
     public void setUp() throws Exception {
-//        RestWeatherCollectorEndpoint.init();
+    	WeatherServer.main(new String[]{});
+    	AirportLoader.main(new String[]{"/home/sensefields/development/watchdogsWorkspace/"
+    			+ "weather-dist/src/main/resources/airports.txt"});
         _dp = new DataPoint.Builder()
                 .withCount(10).withFirst(10).withMedian(20).withLast(30).withMean(22).build();
         _update.updateWeather("BOS", "wind", _gson.toJson(_dp));
         _query.get("BOS", "0").getEntity();
     }
+    
 
     @Test
     public void testPing() throws Exception {
@@ -87,5 +94,4 @@ public class WeatherEndpointTest {
         assertEquals(ais.get(0).getWind(), windDp);
         assertEquals(ais.get(0).getCloudCover(), cloudCoverDp);
     }
-
 }
