@@ -1,14 +1,12 @@
 package com.crossover.trial.weather.endpoint;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -42,10 +40,6 @@ public class RestWeatherCollectorEndpoint implements WeatherCollector {
 	/** shared gson json to object factory */
 	public final static Gson gson = new Gson();
 
-	static {
-		init();
-	}
-
 	@GET
 	@Path("/ping")
 	@Override
@@ -55,6 +49,7 @@ public class RestWeatherCollectorEndpoint implements WeatherCollector {
 
 	@POST
 	@Path("/weather/{iata}/{pointType}")
+	@Consumes(MediaType.APPLICATION_JSON)
 	@Override
 	public Response updateWeather(@PathParam("iata") String iataCode,
 			@PathParam("pointType") String pointType, String datapointJson) {
@@ -65,7 +60,7 @@ public class RestWeatherCollectorEndpoint implements WeatherCollector {
 		} catch (AtmosphericInformationException e) {
 			return Response.status(Response.Status.NOT_FOUND).build();
 		} catch (IllegalStateException e) {
-			return Response.status(Response.Status.NOT_ACCEPTABLE).build();
+			return Response.status(Response.Status.BAD_REQUEST).build();
 		}
 		return Response.status(Response.Status.OK).build();
 	}
@@ -93,14 +88,26 @@ public class RestWeatherCollectorEndpoint implements WeatherCollector {
 		}
 		return Response.status(Response.Status.OK).entity(ad).build();
 	}
-
+	
+	
 	@POST
-	@Path("/airport/{iata}/{lat}/{long}")
+	@Path("/airport/{iata}")
 	@Override
-	public Response addAirport(@PathParam("iata") String iata,
-			@PathParam("lat") Double latitude,
-			@PathParam("long") Double longitude) {
-			addAirport(iata, latitude, longitude);
+	public Response addAirport(@FormParam("iata") String iata,
+			@FormParam("city") String city,
+			@FormParam("country") String country,
+			@FormParam("icao") String icao,
+			@FormParam("lat") Double latitude,
+			@FormParam("long") Double longitude,
+			@FormParam("altitude") Double altitude,
+			@FormParam("timezone") Double timezone,
+			@FormParam("dst") String dst) {
+			try{
+				WeatherCollectorService service = new WeatherCollectorService();
+				service.addAirport(iata, city, country, icao, latitude, longitude, altitude, timezone, dst);				
+			}catch(IllegalArgumentException e){
+				Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+			}
 		return Response.status(Response.Status.OK).build();
 	}
 
@@ -108,27 +115,13 @@ public class RestWeatherCollectorEndpoint implements WeatherCollector {
 	@Path("/airport/{iata}")
 	@Override
 	public Response deleteAirport(@PathParam("iata") String iata) {
-		return Response.status(Response.Status.METHOD_NOT_ALLOWED).build();
-	}
-	
-	/**
-	 * A dummy init method that loads hard coded data
-	 */
-	public static void init() {
-		InputStream is = Thread.currentThread().getContextClassLoader()
-				.getResourceAsStream("airports.dat");
-		BufferedReader br = new BufferedReader(new InputStreamReader(is));
-		String l = null;
 		WeatherCollectorService service = new WeatherCollectorService();
 		try {
-			while ((l = br.readLine()) != null) {
-				String[] split = l.split(",");
-				service.addAirport(split[0], Double.valueOf(split[1]),
-						Double.valueOf(split[2]));
-			}
-		} catch (IOException e) {
-			LOGGER.severe("Error loading the airport file");
-			System.exit(0);
+			service.deleteAirport(iata);
+		} catch (AirportNotFoundException e) {
+			return Response.status(Response.Status.NOT_FOUND).build();
 		}
+		return Response.status(Response.Status.OK).build();
 	}
+	
 }

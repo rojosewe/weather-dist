@@ -25,10 +25,57 @@ public class AirportData {
 	 * longitude value in degrees
 	 */
 	private double longitude;
+	
+	/**
+	 * Name of the ciy
+	 */
+	private String city;
+	
+	/**
+	 * Name of the country
+	 */
+	private String country;
+	
+	/**
+	 * ICAO
+	 */
+	private String icao;
+	
+	/**
+	 * Altitude in feet
+	 */
+	private Double altitude;
+	
+	/**
+	 * Hour offset from UTC
+	 */
+	private Double timezone;
+	
+	/**
+	 * DST
+	 */
+	private DST dst;
 
 	public AirportData() {
-
+		icao = new String();
+		iata = new String();
 	}
+	
+	public AirportData(String iata, double latitude, double longitude, String city, String country, String icao,
+			Double altitude, Double timezone, DST dst) {
+		super();
+		this.iata = iata;
+		this.latitude = latitude;
+		this.longitude = longitude;
+		this.city = city;
+		this.country = country;
+		this.icao = icao;
+		this.altitude = altitude;
+		this.timezone = timezone;
+		this.dst = dst;
+	}
+
+
 
 	public String getIata() {
 		return iata;
@@ -38,7 +85,7 @@ public class AirportData {
 		this.iata = iata;
 	}
 
-	public double getLatitude() {
+	public Double getLatitude() {
 		return latitude;
 	}
 
@@ -46,7 +93,7 @@ public class AirportData {
 		this.latitude = latitude;
 	}
 
-	public double getLongitude() {
+	public Double getLongitude() {
 
 		return longitude;
 	}
@@ -54,6 +101,54 @@ public class AirportData {
 	public void setLongitude(double longitude) {
 
 		this.longitude = longitude;
+	}
+	
+	public String getCity() {
+		return city;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
+	}
+
+	public String getCountry() {
+		return country;
+	}
+
+	public void setCountry(String country) {
+		this.country = country;
+	}
+
+	public String getIcao() {
+		return icao;
+	}
+
+	public void setIcao(String icao) {
+		this.icao = icao;
+	}
+
+	public Double getAltitude() {
+		return altitude;
+	}
+
+	public void setAltitude(Double altitude) {
+		this.altitude = altitude;
+	}
+
+	public Double getTimezone() {
+		return timezone;
+	}
+
+	public void setTimezone(Double timezone) {
+		this.timezone = timezone;
+	}
+
+	public DST getDst() {
+		return dst;
+	}
+
+	public void setDst(DST dst) {
+		this.dst = dst;
 	}
 
 	public String toString() {

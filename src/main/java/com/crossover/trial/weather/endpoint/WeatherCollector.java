@@ -1,5 +1,6 @@
 package com.crossover.trial.weather.endpoint;
 
+import javax.ws.rs.FormParam;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
@@ -49,16 +50,37 @@ public interface WeatherCollector {
     Response getAirport(@PathParam("iata") String iata);
 
     /**
-     * Add a new airport to the known airport list.
+     * 
      *
-     * @param iata the 3 letter airport code of the new airport
-     * @param latString the airport's latitude in degrees as a string [-90, 90]
-     * @param longString the airport's longitude in degrees as a string [-180, 180]
+     * @param 
+     * @param 
+     * @param 
      * @return HTTP Response code for the add operation
      */
-    Response addAirport(@PathParam("iata") String iata,
-                        @PathParam("lat") Double latitude,
-                        @PathParam("long") Double longitude);
+    
+    /**
+     * Add a new airport to the known airport list.
+     * 
+     * @param iata iata the 3 letter airport code of the new airport
+     * @param city Main city served by airport. May be spelled differently from name.
+     * @param country Country or territory where airport is located.
+     * @param icao 4-letter ICAO code (blank or "" if not assigned)
+     * @param latitude latString the airport's latitude in degrees as a string [-90, 90]
+     * @param longitude longString the airport's longitude in degrees as a string [-180, 180]
+     * @param altitude In feet
+     * @param timezone Hours offset from UTC. Fractional hours are expressed as decimals. (e.g. India is 5.5)
+     * @param dst One of E (Europe), A (US/Canada), S (South America), O (Australia), Z (New Zealand), N (None) or U (Unknown)
+     * @return  HTTP Repsonse code for the post operation
+     */
+    Response addAirport(@PathParam("iata") String iata, 
+    		@FormParam("city") String city, 
+    		@FormParam("country") String country, 
+    		@FormParam("icao") String icao,
+    		@FormParam("latitude") Double latitude, 
+    		@FormParam("longitude") Double longitude, 
+    		@FormParam("altitude") Double altitude,
+    		@FormParam("timezone") Double timezone, 
+    		@FormParam("dst") String dst);
 
     /**
      * Remove an airport from the known airport list
@@ -67,4 +89,5 @@ public interface WeatherCollector {
      * @return HTTP Repsonse code for the delete operation
      */
     Response deleteAirport(@PathParam("iata") String iata);
+
 }
