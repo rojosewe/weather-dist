@@ -77,7 +77,7 @@ public class AtmosphericInformationRepository {
 	}
 
 	public static void addAtmosphericInformation(String iataCode) {
-		atmosphericInformation.put(iataCode, new AtmosphericInformation());
+		atmosphericInformation.put(iataCode, new AtmosphericInformation(iataCode));
 	}
 
 	/**

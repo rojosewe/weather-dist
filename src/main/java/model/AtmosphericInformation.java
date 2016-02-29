@@ -29,13 +29,16 @@ public class AtmosphericInformation {
 	/** the last time this data was updated, in milliseconds since UTC epoch */
 	private long lastUpdateTime;
 
-	public AtmosphericInformation() {
+	private String iataCode;
 
+	public AtmosphericInformation(String iataCode) {
+		this.setIataCode(iataCode);
 	}
 
-	protected AtmosphericInformation(DataPoint temperature, DataPoint wind,
+	protected AtmosphericInformation(String iataCode, DataPoint temperature, DataPoint wind,
 			DataPoint humidity, DataPoint percipitation, DataPoint pressure,
 			DataPoint cloudCover) {
+		this.iataCode = iataCode;
 		this.temperature = temperature;
 		this.wind = wind;
 		this.humidity = humidity;
@@ -120,5 +123,13 @@ public class AtmosphericInformation {
 		return getCloudCover() != null || getHumidity() != null
 				|| getPressure() != null || getPrecipitation() != null
 				|| getTemperature() != null || getWind() != null;
+	}
+
+	public String getIataCode() {
+		return iataCode;
+	}
+
+	public void setIataCode(String iataCode) {
+		this.iataCode = iataCode;
 	}
 }
