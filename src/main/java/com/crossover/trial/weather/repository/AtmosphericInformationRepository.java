@@ -2,7 +2,10 @@ package com.crossover.trial.weather.repository;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 import model.AtmosphericInformation;
@@ -24,6 +27,8 @@ public class AtmosphericInformationRepository {
 	 */
 	protected static Map<String, AtmosphericInformation> atmosphericInformation = new HashMap<String, AtmosphericInformation>();
 
+	private static ReadWriteLock lock = new ReentrantReadWriteLock();
+	
 	/**
 	 * Get the atmospheric information associated to an airport.
 	 * 
@@ -34,10 +39,14 @@ public class AtmosphericInformationRepository {
 	 */
 	public static AtmosphericInformation getAtmosphericInformation(String iata)
 			throws AtmosphericInformationException {
-		if (!atmosphericInformation.containsKey(iata))
+		lock.readLock().lock();
+		if (!atmosphericInformation.containsKey(iata)){
 			throw new AtmosphericInformationException(
 					"No Atmospheric information associated to " + iata);
-		return atmosphericInformation.get(iata);
+		}
+		AtmosphericInformation ai = atmosphericInformation.get(iata);
+		lock.readLock().unlock();
+		return ai;
 	}
 
 	/**
@@ -58,7 +67,10 @@ public class AtmosphericInformationRepository {
 	 * @return a list containing all the information
 	 */
 	public static Collection<AtmosphericInformation> getAllAvailableAtmosphericInformation() {
-		return atmosphericInformation.values();
+		lock.readLock().lock();
+		Collection<AtmosphericInformation> values = atmosphericInformation.values();
+		lock.readLock().unlock();
+		return values;
 	}
 
 	/**
@@ -68,16 +80,21 @@ public class AtmosphericInformationRepository {
 	 * @return
 	 */
 	public static Collection<AtmosphericInformation> getAllRecentAtmosphericInformation() {
-		return atmosphericInformation
+		lock.readLock().lock();
+		List<AtmosphericInformation> collect = atmosphericInformation
 				.values()
 				.stream()
 				.filter(t -> t.hasAnyInformation()
 						&& t.getLastUpdateTime() > System.currentTimeMillis() - 86400000)
 				.collect(Collectors.toList());
+		lock.readLock().unlock();
+		return collect;
 	}
 
 	public static void addAtmosphericInformation(String iataCode) {
+		lock.writeLock().lock();
 		atmosphericInformation.put(iataCode, new AtmosphericInformation(iataCode));
+		lock.writeLock().unlock();
 	}
 
 	/**
@@ -95,6 +112,7 @@ public class AtmosphericInformationRepository {
 			String pointType, DataPoint dp)
 			throws AtmosphericInformationException, IllegalStateException {
 		AtmosphericInformation ai = getAtmosphericInformation(iataCode);
+		lock.writeLock().lock();
 		switch (DataPointType.valueOf(pointType.toUpperCase())) {
 		case WIND:
 			if (dp.getMean() >= 0) {
@@ -123,6 +141,9 @@ public class AtmosphericInformationRepository {
 		default:
 			throw new IllegalStateException("couldn't update atmospheric data");
 		}
+		atmosphericInformation.put(iataCode, ai);
+		lock.writeLock().unlock();
+		
 	}
 
 }
