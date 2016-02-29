@@ -13,6 +13,8 @@ import com.crossover.trial.weather.exception.AirportNotFoundException;
 import com.crossover.trial.weather.exception.AtmosphericInformationException;
 
 /**
+ * Handles the data about the Atmospheric Information
+ * 
  * @author Rodrigo Weffer
  */
 public class AtmosphericInformationRepository {

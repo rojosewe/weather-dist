@@ -54,9 +54,13 @@ public class WeatherEndpointTest {
     public void testGetNearby() throws Exception {
         // check datasize response
         _update.updateWeather("JFK", "wind", _gson.toJson(_dp));
-        _dp.setMean(40);
+        _dp = new DataPoint.Builder().withCount(_dp.getCount())
+        		.withFirst(_dp.getFirst()).withLast(_dp.getThird()).withMean(40)
+        		.withMedian(_dp.getSecond()).build();
         _update.updateWeather("EWR", "wind", _gson.toJson(_dp));
-        _dp.setMean(30);
+        _dp = new DataPoint.Builder().withCount(_dp.getCount())
+        		.withFirst(_dp.getFirst()).withLast(_dp.getThird()).withMean(30)
+        		.withMedian(_dp.getSecond()).build();
         _update.updateWeather("LGA", "wind", _gson.toJson(_dp));
 
         List<AtmosphericInformation> ais = (List<AtmosphericInformation>) _query.get("JFK", "200").getEntity();

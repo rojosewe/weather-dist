@@ -6,7 +6,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 /**
  * Basic airport information.
  *
- * @author code test administrator
+ * @author code test administrator, Rodrigo Weffer
  */
 
 public class AirportData {

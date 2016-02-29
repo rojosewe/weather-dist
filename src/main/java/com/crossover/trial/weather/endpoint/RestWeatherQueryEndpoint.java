@@ -1,10 +1,10 @@
 package com.crossover.trial.weather.endpoint;
 
-import com.crossover.trial.weather.exception.AirportNotFoundException;
-import com.crossover.trial.weather.exception.AtmosphericInformationException;
-import com.crossover.trial.weather.repository.AirportRepository;
-import com.crossover.trial.weather.repository.AtmosphericInformationRepository;
-import com.google.gson.Gson;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -13,12 +13,15 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import util.AirportRequestStatistics;
 import model.AirportData;
 import model.AtmosphericInformation;
+import util.AirportRequestStatistics;
 
-import java.util.*;
-import java.util.logging.Logger;
+import com.crossover.trial.weather.exception.AirportNotFoundException;
+import com.crossover.trial.weather.exception.AtmosphericInformationException;
+import com.crossover.trial.weather.repository.AirportRepository;
+import com.crossover.trial.weather.service.QueryCollectorService;
+import com.google.gson.Gson;
 
 /**
  * The Weather App REST endpoint allows clients to query, update and check
@@ -68,7 +71,8 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
 	}
 
 	private void setDataSize(Map<String, Object> retval) {
-		int datasize = AtmosphericInformationRepository.getAllRecentAtmosphericInformation().size();
+		QueryCollectorService service = new QueryCollectorService();
+		int datasize = service.getAllRecentAtmosphericInformation().size();
 		retval.put("datasize", datasize);
 	}
 
@@ -93,30 +97,24 @@ public class RestWeatherQueryEndpoint implements WeatherQueryEndpoint {
 		List<AtmosphericInformation> retval = new ArrayList<>();
 		try {
 			AirportData airportData = AirportRepository.findAirportData(iata);
-			airportRequestStatistics
-					.updateRequestFrequency(airportData, radius);
+			airportRequestStatistics.updateRequestFrequency(airportData, radius);
+			QueryCollectorService service = new QueryCollectorService();
 			if (radius == 0) {
 				try {
-					retval.add(AtmosphericInformationRepository.getAtmosphericInformation(iata));
+					retval.add(service.getAtmosphericInformation(iata));
 				} catch (AtmosphericInformationException e) {
 					return Response.status(Response.Status.NOT_FOUND).build();
 				}
 			} else {
-				for (AirportData ad : AirportRepository.getAirportsCloserThan(iata, radius)) {
-					try{
-						AtmosphericInformation ai = AtmosphericInformationRepository.getAtmosphericInformation(ad.getIata());
-						if (ai.hasAnyInformation()) {
-							retval.add(ai);
-						}
-					}catch(AtmosphericInformationException e){
-					}
-				}
+				retval.addAll(service.getAtmosphericInfoCloseTo(iata, radius));
 			}
 		} catch (AirportNotFoundException e) {
 			return Response.status(Response.Status.NOT_FOUND).build();
 		}
 		return Response.status(Response.Status.OK).entity(retval).build();
 	}
+
+	
 
 	/**
 	 * Records information about how often requests are made
